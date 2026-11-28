@@ -1,0 +1,33 @@
+name: ch22-jobs
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      n_rows: ${{ steps.count.outputs.n_rows }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: count
+        name: Count rows of the committed sample
+        run: echo "n_rows=$(($(wc -l < tests/fixtures/customers_sample.csv) - 1))" >> "$GITHUB_OUTPUT"
+  train:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "training on ${{ needs.prepare.outputs.n_rows }} rows"
+  report:
+    needs: [prepare, train]
+    if: ${{ needs.prepare.outputs.n_rows > 100 }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "enough rows for a report"
+  skip-me:
+    needs: prepare
+    if: ${{ github.ref_name == 'main' }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "only on main"
