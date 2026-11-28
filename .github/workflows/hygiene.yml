@@ -1,0 +1,30 @@
+name: Hygiene
+on:
+  push:
+    branches: [main, "book/**"]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  actionlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - name: Lint this repository's workflows
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
+      - name: actionlint on the deliberately broken example
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 \
+            tests/fixtures/broken-workflow.yml || echo "actionlint exit status: $?"
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pip-audit
+      - name: Known vulnerabilities in the runtime dependencies
+        run: pip-audit -r requirements.txt -r requirements-api.txt --progress-spinner off

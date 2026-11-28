@@ -1,0 +1,16 @@
+# A workflow with deliberate mistakes, used to demonstrate actionlint.
+name: broken
+on:
+  push:
+    branchs: [main]
+jobs:
+  test:
+    runs-on: ubuntu-latst
+    strategy:
+      matrix:
+        python: ["3.12", "3.13"]
+    steps:
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.pyhton }}
+      - run: echo "${{ github.event.head_commit.message }}"
