@@ -1,0 +1,35 @@
+name: ch17-notebooks
+on:
+  push:
+    branches: [book/ch17-notebooks]
+permissions:
+  contents: read
+jobs:
+  notebook-tools:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install jupytext nbdime nbstripout papermill ipykernel pandas
+      - name: Versions
+        run: |
+          for t in jupytext nbdime nbstripout papermill; do
+            echo "$t $(python -c "import importlib.metadata as m; print(m.version('$t'))")"
+          done
+      - name: nbstripout --verify
+        run: nbstripout --verify notebooks/02-params.ipynb || echo "outputs present (exit $?)"
+      - name: Jupytext percent script
+        run: jupytext --to py:percent --output - notebooks/02-params.ipynb
+      - name: nbdime diff of the last commit
+        run: |
+          git show HEAD~1:notebooks/02-params.ipynb > /tmp/old.ipynb
+          nbdiff --sources /tmp/old.ipynb notebooks/02-params.ipynb
+      - name: papermill with a parameter
+        run: |
+          cd notebooks
+          papermill 02-params.ipynb /tmp/out.ipynb -k python3 -p min_tenure 24 \
+            --log-output 2>&1 | grep -E 'min_tenure|rows|Error' || true
