@@ -1,0 +1,34 @@
+name: Data quality problem
+description: Wrong, missing or suspicious values in a dataset
+title: "[data] "
+labels: ["data"]
+body:
+  - type: markdown
+    attributes:
+      value: "Do **not** paste personal data or credentials. Refer to rows by ID."
+  - type: input
+    id: dataset
+    attributes:
+      label: Dataset and version
+      placeholder: "customers.csv, extract 2026-09, DVC rev abc1234"
+    validations:
+      required: true
+  - type: textarea
+    id: observation
+    attributes:
+      label: What did you observe?
+      description: Query or code, counts, a few example IDs
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected rule
+      placeholder: "monthly_spend >= 0"
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Impact on models
+      options: ["None known", "Training data affected", "Serving affected", "Both"]
+    validations:
+      required: true

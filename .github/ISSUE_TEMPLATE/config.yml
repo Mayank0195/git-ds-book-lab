@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions about the data
+    url: https://github.com/Mayank0195/git-ds-book-lab/discussions
+    about: Ask in Discussions instead of opening an issue.
