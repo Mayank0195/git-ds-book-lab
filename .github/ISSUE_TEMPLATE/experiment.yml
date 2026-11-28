@@ -1,0 +1,27 @@
+name: Experiment proposal
+description: Propose a modelling experiment with a hypothesis and a budget
+title: "[exp] "
+labels: ["experiment"]
+body:
+  - type: textarea
+    id: hypothesis
+    attributes:
+      label: Hypothesis
+      placeholder: "Gradient boosting improves AUC by at least 0.02 over the baseline"
+    validations:
+      required: true
+  - type: input
+    id: metric
+    attributes:
+      label: Primary metric and baseline value
+      placeholder: "AUC, baseline 0.708 (reports/baseline.json)"
+    validations:
+      required: true
+  - type: input
+    id: budget
+    attributes:
+      label: Time or compute budget
+  - type: textarea
+    id: stop
+    attributes:
+      label: Stop criterion
