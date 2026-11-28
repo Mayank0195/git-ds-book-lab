@@ -9,4 +9,3 @@
 
 # CI/CD workflows need a second pair of eyes from the platform side
 /.github/workflows/     @Mayank0195
-/docs/   @no-such-user-for-the-book-lab
