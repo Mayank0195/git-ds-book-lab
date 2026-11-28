@@ -1,0 +1,21 @@
+name: ch25-injection
+on:
+  push:
+    branches: [book/ch25-security]
+permissions:
+  contents: read
+jobs:
+  unsafe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: UNSAFE - expression inside the script
+        run: |
+          echo "Last commit: ${{ github.event.head_commit.message }}"
+  safe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Safe - expression passed through the environment
+        env:
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          echo "Last commit: $MSG"
