@@ -1,0 +1,38 @@
+name: ch22-env
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+env:
+  MODEL_NAME: churn-model          # workflow level
+jobs:
+  env-demo:
+    runs-on: ubuntu-latest
+    env:
+      STAGE: ci                    # job level
+    steps:
+      - name: Levels and precedence
+        env:
+          STAGE: step-override     # step level wins
+        run: echo "model=$MODEL_NAME stage=$STAGE"
+      - name: Set a variable for later steps
+        run: echo "TRAIN_DATE=$(date -u +%F)" >> "$GITHUB_ENV"
+      - name: Use it
+        run: echo "model trained on $TRAIN_DATE (stage=$STAGE)"
+      - name: Mask a value derived at run time
+        run: |
+          fake_key="sk-lab-$(echo "$GITHUB_RUN_ID" | sha256sum | cut -c1-12)"
+          echo "::add-mask::$fake_key"
+          echo "the key is $fake_key"
+      - name: Secrets never print
+        run: |
+          echo "token length: ${#TOKEN}, token: $TOKEN"
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Job summary
+        run: |
+          echo "### Training data" >> "$GITHUB_STEP_SUMMARY"
+          echo "| rows | date |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| 200 | $TRAIN_DATE |" >> "$GITHUB_STEP_SUMMARY"
