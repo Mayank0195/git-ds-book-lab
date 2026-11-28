@@ -1,6 +1,6 @@
 train:
-  model: tree        # logreg | tree
-  C: 1.0             # inverse regularisation strength (logreg)
+  model: logreg      # logreg | tree
+  C: 0.001           # inverse regularisation strength (logreg)
   max_depth: null    # tree depth (null = unlimited)
   test_size: 0.3
   seed: 7
