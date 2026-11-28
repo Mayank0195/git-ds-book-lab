@@ -17,7 +17,7 @@ from churn.features import build_features
 def main(path: str) -> float:
     df = load_customers(path)
     X, y = build_features(df), df["churned"]
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25,
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.2,
                                               stratify=y, random_state=42)
     model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced"))
     model.fit(X_tr, y_tr)
