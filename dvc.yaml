@@ -1,0 +1,12 @@
+stages:
+  evaluate:
+    cmd: PYTHONPATH=src python scripts/evaluate.py data/sample/customers.csv 2>/dev/null
+    deps:
+      - data/sample/customers.csv
+      - scripts/evaluate.py
+      - src/churn
+    params:
+      - train
+    metrics:
+      - reports/metrics.json:
+          cache: false
