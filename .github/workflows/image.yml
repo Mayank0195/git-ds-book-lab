@@ -1,0 +1,48 @@
+name: Image
+on:
+  push:
+    branches: [main, "book/**"]
+    paths: ["src/**", "Dockerfile", "requirements-api.txt", ".github/workflows/image.yml"]
+permissions:
+  contents: read
+jobs:
+  build-and-smoke-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - name: Train a small model for the image
+        run: |
+          python -m pip install -r requirements-api.txt
+          PYTHONPATH=src python - <<'EOF'
+          import joblib
+          from sklearn.linear_model import LogisticRegression
+          from churn.data import load_customers
+          from churn.features import build_features
+          df = load_customers("tests/fixtures/customers_sample.csv")
+          m = LogisticRegression(max_iter=1000).fit(build_features(df), df["churned"])
+          joblib.dump(m, "models/model.joblib")
+          EOF
+      - uses: docker/setup-buildx-action@v4
+      - uses: docker/build-push-action@v7
+        with:
+          context: .
+          load: true
+          push: false
+          tags: churn-api:ci
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+      - name: Smoke-test the container
+        run: |
+          docker image ls churn-api:ci --format 'image {{.Repository}}:{{.Tag}} {{.Size}}'
+          docker run -d --name api -p 8000:8000 churn-api:ci
+          for _ in $(seq 1 30); do curl -fsS localhost:8000/health && break; sleep 1; done
+          echo
+          body='{"plan": "basic", "monthly_spend": 50, "tenure_months": 3, "support_tickets": 4}'
+          curl -fsS -X POST localhost:8000/predict -H 'content-type: application/json' -d "$body"
+          echo
+          echo "container user: $(docker exec api id -un)"
+          docker rm -f api > /dev/null
