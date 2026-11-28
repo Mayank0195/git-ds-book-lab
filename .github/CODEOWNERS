@@ -1,0 +1,12 @@
+# Default owner for everything in the repository
+*                       @Mayank0195
+
+# Data loading and validation: the data scientist responsible for the pipeline
+/src/churn/data.py      @Mayank0195
+
+# Model training and evaluation code
+/src/churn/train.py     @Mayank0195
+
+# CI/CD workflows need a second pair of eyes from the platform side
+/.github/workflows/     @Mayank0195
+/docs/   @no-such-user-for-the-book-lab
