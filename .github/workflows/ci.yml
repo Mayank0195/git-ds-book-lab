@@ -1,0 +1,67 @@
+name: CI
+on:
+  push:
+    branches: [main, "book/**"]
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install ruff
+      - name: Ruff lint (GitHub annotations)
+        run: ruff check --output-format=github
+      - name: Ruff format check
+        run: ruff format --check
+
+  types:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - run: mypy
+
+  test:
+    needs: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.13"]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - run: python -m pip install -r requirements-dev.txt
+      - name: Tests with coverage
+        run: |
+          pytest -q --cov --cov-report=term --cov-report=xml --cov-fail-under=80
+          total=$(python -c "import xml.etree.ElementTree as E; \
+          print(round(100*float(E.parse('coverage.xml').getroot().get('line-rate'))))")
+          py="${{ matrix.python-version }}"
+          echo "### Coverage on Python $py: $total %" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v7
+        if: matrix.python-version == '3.13'
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 7

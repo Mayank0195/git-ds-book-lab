@@ -2,6 +2,7 @@
 
 Usage: python -m churn.train DATA_CSV
 """
+
 import sys
 
 from sklearn.linear_model import LogisticRegression
@@ -17,15 +18,15 @@ from churn.features import build_features
 def main(path: str) -> float:
     df = load_customers(path)
     X, y = build_features(df), df["churned"]
-    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25,
-                                              stratify=y, random_state=42)
-    model = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced"))
+    X_tr, X_te, y_tr, y_te = train_test_split(X, y, test_size=0.25, stratify=y, random_state=42)
+    model = make_pipeline(
+        StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced")
+    )
     model.fit(X_tr, y_tr)
-    auc = roc_auc_score(y_te, model.predict_proba(X_te)[:, 1])
+    auc = float(roc_auc_score(y_te, model.predict_proba(X_te)[:, 1]))
     print(f"test AUC = {auc:.4f}")
     return auc
 
 
 if __name__ == "__main__":
     main(sys.argv[1])
-# Vikram: evaluate on Oct-2026 data

@@ -1,4 +1,5 @@
 """Feature engineering for the churn model."""
+
 import pandas as pd
 
 NUMERIC = ["monthly_spend", "tenure_months", "support_tickets"]

@@ -1,10 +1,10 @@
 """Load and validate the raw customer table."""
+
 from pathlib import Path
 
 import pandas as pd
 
-REQUIRED = ["customer_id", "plan", "monthly_spend", "tenure_months",
-            "support_tickets", "churned"]
+REQUIRED = ["customer_id", "plan", "monthly_spend", "tenure_months", "support_tickets", "churned"]
 
 
 def load_customers(path: str | Path) -> pd.DataFrame:

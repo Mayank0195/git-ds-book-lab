@@ -14,3 +14,7 @@ data/processed/*
 models/*
 !**/.gitkeep
 # Secrets and local settings
+# Test and coverage output
+.coverage
+coverage.xml
+htmlcov/
