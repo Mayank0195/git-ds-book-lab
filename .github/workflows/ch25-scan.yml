@@ -1,0 +1,30 @@
+name: ch25-scan
+on:
+  push:
+    branches: [book/ch25-security]
+permissions:
+  contents: read
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0          # full history: secrets hide in old commits
+      - name: Scan every commit for secrets
+        run: |
+          docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 \
+            git /repo --redact --no-banner --verbose
+  trivy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Scan the base image of the model API
+        run: |
+          docker run --rm -v "$PWD:/out" aquasec/trivy:0.76.2 image --quiet \
+            --scanners vuln --severity HIGH,CRITICAL --format json -o /out/trivy.json \
+            python:3.13-slim
+          jq -r '"OS: \(.Metadata.OS.Family) \(.Metadata.OS.Name)"' trivy.json
+          jq -r '[.Results[].Vulnerabilities[]? | .Severity] | group_by(.)
+                 | map("\(.[0]): \(length)") | .[]' trivy.json
+          jq -r '[.Results[].Vulnerabilities[]? | select(.FixedVersion != null)] | length
+                 | "with a fixed version available: \(.)"' trivy.json
