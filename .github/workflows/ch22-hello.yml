@@ -1,0 +1,21 @@
+name: ch22-hello
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Where am I?
+        run: |
+          echo "event=$GITHUB_EVENT_NAME ref=$GITHUB_REF_NAME sha=${GITHUB_SHA::7}"
+          echo "repository=$GITHUB_REPOSITORY actor=$GITHUB_ACTOR"
+          echo "runner: $RUNNER_OS $RUNNER_ARCH, $(nproc) CPUs, $(free -g | awk '/Mem/ {print $2}') GB RAM"
+          python3 --version && git --version
+      - name: The checked-out repository
+        run: |
+          git log --oneline -1
+          ls
