@@ -1,0 +1,6 @@
+customer_id,first_name,last_name,email,city,signup_date,plan,monthly_spend,tenure_months,support_tickets,churned
+C00001,Fatima,Reddy,fatima.reddy1@example.com,Pune,2023-06-28,basic,285.44,18,0,1
+C00002,Asha,Sharma,asha.sharma2@example.com,Delhi,2025-05-09,gold,260.10,15,1,1
+C00003,Tara,Das,tara.das3@example.com,Mumbai,2024-07-23,premium,-5.0,1,2,0
+C00004,Imran,Joshi,imran.joshi4@example.com,Chennai,2023-03-30,basic,444.20,25,0,0
+C00005,Siddharth,Reddy,siddharth.reddy5@example.com,Pune,2025-01-10,premium,1068.81,25,0,0

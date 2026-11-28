@@ -1,0 +1,30 @@
+name: Data contract
+on:
+  push:
+    branches: [main, "book/**"]
+    paths:
+      - "tests/fixtures/**"
+      - "data/**"
+      - "scripts/validate_data.py"
+      - ".github/workflows/data.yml"
+  pull_request:
+    paths: ["tests/fixtures/**", "data/**", "scripts/validate_data.py"]
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pandas pandera
+      - name: The committed sample must satisfy the contract
+        run: python scripts/validate_data.py tests/fixtures/customers_sample.csv
+      - name: The broken fixture must be rejected
+        run: |
+          if python scripts/validate_data.py tests/fixtures/customers_broken.csv; then
+            echo "::error::the broken fixture passed validation"; exit 1
+          fi
