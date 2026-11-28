@@ -1,0 +1,38 @@
+name: ch22-artifacts
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-churn
+      - name: Train on the committed sample
+        run: |
+          mkdir -p out
+          PYTHONPATH=src python -c "
+          import json, joblib
+          from churn.data import load_customers
+          from churn.features import build_features
+          from sklearn.linear_model import LogisticRegression
+          df = load_customers('tests/fixtures/customers_sample.csv')
+          m = LogisticRegression(max_iter=1000).fit(build_features(df), df.churned)
+          joblib.dump(m, 'out/model.joblib')
+          json.dump({'rows': len(df)}, open('out/metrics.json', 'w'))"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: churn-model-sample
+          path: out/
+          retention-days: 7
+  check:
+    needs: train
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: churn-model-sample
+          path: model/
+      - run: ls -l model && cat model/metrics.json
