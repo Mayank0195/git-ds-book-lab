@@ -1,0 +1,19 @@
+name: ch22-permissions
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+jobs:
+  try-to-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: A read-only token cannot push
+        continue-on-error: true
+        run: |
+          git config user.name "ci-bot"
+          git config user.email "ci-bot@example.com"
+          git tag "ci-test-${GITHUB_RUN_ID}"
+          git push origin "ci-test-${GITHUB_RUN_ID}"
+      - run: echo "the job continues because the step may fail"
