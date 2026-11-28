@@ -1,0 +1,16 @@
+name: ch22-caller
+on:
+  push:
+    branches: [book/ch22-actions]
+permissions:
+  contents: read
+jobs:
+  tests:
+    uses: ./.github/workflows/ch22-reusable-tests.yml
+    with:
+      python-version: "3.12"
+  after:
+    needs: tests
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "the reusable workflow ran ${{ needs.tests.outputs.n_tests }} tests"

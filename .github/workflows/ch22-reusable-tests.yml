@@ -1,0 +1,25 @@
+name: ch22-reusable-tests
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        type: string
+        default: "3.13"
+    outputs:
+      n_tests:
+        description: Number of tests that ran
+        value: ${{ jobs.pytest.outputs.n_tests }}
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    outputs:
+      n_tests: ${{ steps.run.outputs.n_tests }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-churn
+        with:
+          python-version: ${{ inputs.python-version }}
+      - id: run
+        run: |
+          python -m pytest -q | tee pytest.txt
+          echo "n_tests=$(grep -oE '[0-9]+ passed' pytest.txt | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
