@@ -1,0 +1,22 @@
+name: ch22-dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      C:
+        description: Inverse regularisation strength
+        type: number
+        default: 1.0
+      dry_run:
+        description: Only print the plan
+        type: boolean
+        default: true
+permissions:
+  contents: read
+run-name: "train C=${{ inputs.C }} dry_run=${{ inputs.dry_run }}"
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          echo "C=${{ inputs.C }} dry_run=${{ inputs.dry_run }}"
+          echo "triggered by ${{ github.actor }} on ${{ github.ref_name }}"
