@@ -36,3 +36,4 @@ script (see the commit history for changes).
 ## License
 
 MIT, see `LICENSE`.
+- Remotes: see Chapter 10 of the book.
